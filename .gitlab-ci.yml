@@ -8,10 +8,6 @@ myapp-build:
   stage: build
   script:
     mvn install
-  tags:
-    - devops
-    - maven
-    - shell
   artifacts:
     paths:
       - target/
