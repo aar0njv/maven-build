@@ -1,0 +1,14 @@
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+myapp-build:
+  stage: build
+  script:
+    mvn --version
+  tags:
+    - devops
+    - maven
+    - shell
