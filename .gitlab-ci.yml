@@ -4,13 +4,15 @@ stages:
   - package
   - deploy
 
-default:
+.maven-container:
+  image: maven:latest
   tags:
     - maven
-    - shell
+    - docker
 
 myapp-build:
   stage: build
+  extends: .maven-container
   before_script:
     - echo "Verifying maven installation..."
     - mvn --version
@@ -19,6 +21,7 @@ myapp-build:
 
 myapp-test:
   stage: test
+  extends: .maven-container
   before_script:
     - echo "Running test cases..."
   script:
@@ -26,6 +29,7 @@ myapp-test:
 
 myapp-package:
   stage: package
+  extends: .maven-container
   script:
     - mvn package
   artifacts:
@@ -34,5 +38,9 @@ myapp-package:
 
 myapp-run:
   stage: deploy
+  image: alpine/java:22
+  tags: 
+    - maven
+    - docker
   script:
     - java -jar target/techapp-1.0.0.jar
