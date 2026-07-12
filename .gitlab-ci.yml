@@ -7,8 +7,11 @@ stages:
 myapp-build:
   stage: build
   script:
-    mvn --version
+    mvn install
   tags:
     - devops
     - maven
     - shell
+  artifacts:
+    paths:
+      - target/
