@@ -4,6 +4,11 @@ stages:
   - package
   - deploy
 
+default:
+  tags:
+    - maven
+    - shell
+
 myapp-build:
   stage: build
   script:
