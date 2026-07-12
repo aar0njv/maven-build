@@ -27,7 +27,12 @@ myapp-test:
 myapp-package:
   stage: package
   script:
-    mvn package
+    - mvn package
   artifacts:
     paths:
       - target/
+
+myapp-run:
+  stage: deploy
+  script:
+    - java -jar target/techapp-1.0.0.jar
