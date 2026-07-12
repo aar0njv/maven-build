@@ -11,8 +11,23 @@ default:
 
 myapp-build:
   stage: build
+  before_script:
+    - echo "Verifying maven installation..."
+    - mvn --version
   script:
-    mvn install
+    - mvn compile
+
+myapp-test:
+  stage: test
+  before_script:
+    - echo "Running test cases..."
+  script:
+    - mvn test
+
+myapp-package:
+  stage: package
+  script:
+    mvn package
   artifacts:
     paths:
       - target/
