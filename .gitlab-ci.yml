@@ -4,15 +4,14 @@ stages:
   - package
   - deploy
 
-.maven-container:
-  image: maven:latest
+default:
   tags:
     - maven
     - docker
 
 myapp-build:
   stage: build
-  extends: .maven-container
+  image: maven:latest
   before_script:
     - echo "Verifying maven installation..."
     - mvn --version
@@ -21,7 +20,7 @@ myapp-build:
 
 myapp-test:
   stage: test
-  extends: .maven-container
+  image: maven:latest
   before_script:
     - echo "Running test cases..."
   script:
@@ -29,18 +28,31 @@ myapp-test:
 
 myapp-package:
   stage: package
-  extends: .maven-container
+  image: maven:latest
   script:
-    - mvn package
+    - mvn package -DskipTests
   artifacts:
     paths:
       - target/
+    expire_in: 1 week
 
-myapp-run:
-  stage: deploy
-  image: alpine/java:22
-  tags: 
-    - maven
-    - docker
+docker-build:
+  stage: package
+  needs:
+    - myapp-package
+
   script:
-    - java -jar target/techapp-1.0.0.jar
+    - echo "Packaging..."
+    - docker logout       # incase already logged in
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+    - docker build -t maven_build:$CI_COMMIT_SHORT_SHA .
+    - docker tag maven_build:$CI_COMMIT_SHORT_SHA aar0njv/devops-practices:maven-build-$CI_COMMIT_SHORT_SHA
+    - docker push aar0njv/devops-practices:maven-build-$CI_COMMIT_SHORT_SHA
+    - docker logout
+
+    # Pushing to GL Container Registry
+    - echo " Publishing to GL Container Registry... "
+    - docker logout
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+    - docker tag maven_build:$CI_COMMIT_SHORT_SHA registry.gitlab.com/aar0njv-devops/maven-build:$CI_COMMIT_SHORT_SHA
+    - docker push registry.gitlab.com/aar0njv-devops/maven-build:$CI_COMMIT_SHORT_SHA
