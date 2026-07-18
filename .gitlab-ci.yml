@@ -7,7 +7,7 @@ stages:
 default:
   tags:
     - maven
-    - docker
+    - shell
 
 myapp-build:
   stage: build
