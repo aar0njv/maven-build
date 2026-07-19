@@ -6,8 +6,12 @@ stages:
 
 default:
   tags:
+    - docker
     - maven
-    - shell
+
+variables:
+  DOCKER_DRIVER: overlay2  
+  DOCKER_TLS_CERTDIR: ""
 
 myapp-build:
   stage: build
@@ -38,8 +42,11 @@ myapp-package:
 
 docker-build:
   stage: package
+  image: docker:latest
   needs:
     - myapp-package
+  services:
+    - name: docker:dind
 
   script:
     - echo "Packaging..."
