@@ -1,17 +1,15 @@
 # Pipeline Workflow
 
 ## default tag
-- used to specifically use the GitLab Runner configured locally with the tags `maven` and `shell` (shell executor).
+- Used to target the GitLab Runner configured locally with the required tags (`devops`, `maven`, `shell` or `docker`) to execute respective stages.
 
-## `myapp-build`
--  checks if maven is installed (`mvn --version`) and then, it executes `mvn compile` which compiles the raw `.java` source code into an executable `.class` bytecode.
+## `myapp-build-test`
+- Operates using the **Shell executor** directly on the host machine.
+- Verifies the local Maven installation (`mvn --version`) and executes `mvn clean package` to clean, compile, test, and bundle the source code into an executable JAR file.
+- Saves the generated `.jar` file under `target/` as an **artifact** with a 1-week expiration so it can be passed securely to the next stage.
 
-## `myapp-test`
-- invokes `mvn test` which automatically locates the test frameworks and compiles the test file and executes them.
-
-## `myapp-package`
-- runs `mvn package` which automatically build, test and packages everythin into an executable jar file.
-- `artifacts: paths: -target/` instructs gitlab to store the generated `.jar` file as artifacts in GitLab server.
-
-## `myapp-run`
-- runs the `.jar` file generated after the package process from `~/.m2/repository`
+## `docker-build-push`
+- Operates using the **Docker executor** with Docker-in-Docker (DinD) enabled.
+- Takes the compiled `.jar` artifact and runs `docker build` (passing build arguments) to containerize the application using the local `Dockerfile`.
+- Securely logs into **Docker Hub** using encrypted CI/CD variables, tags the image, pushes it to the public/private repository, and logs out.
+- Securely logs into the **GitLab Container Registry** using built-in authentication tokens (`$CI_REGISTRY_USER`, `$CI_REGISTRY_PASSWORD`), tags the image, pushes it, and logs out.
