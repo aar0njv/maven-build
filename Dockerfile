@@ -1,6 +1,6 @@
 FROM alpine/java:22
 
-ARG EXAMPLE_ARG
+ARG EXAMPLE_ARG=default_argument
 
 RUN echo $EXAMPLE_ARG > /tmp/test_arg.txt
 
