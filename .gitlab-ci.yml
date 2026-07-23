@@ -22,7 +22,7 @@ myapp-build-test:
   artifacts:
     paths:
       - target/*.jar
-    expires_in: 1 week
+    expire_in: 1 week
 
 docker-build-push:
   stage: package
